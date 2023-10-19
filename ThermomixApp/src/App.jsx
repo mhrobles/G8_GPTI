@@ -1,7 +1,51 @@
 import { useState, useEffect } from 'react'
+import { DownOutlined } from '@ant-design/icons';
+import { Dropdown, Space, Button, Input, Select, Layout } from 'antd';
+const { Header, Footer, Sider, Content } = Layout;
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
+
+const items = [
+  {
+    label: (
+      <a target="_blank" rel="noopener noreferrer" href="https://www.antgroup.com">
+        TM6
+      </a>
+    ),
+    key: '0',
+  },
+  {
+    label: (
+      <a target="_blank" rel="noopener noreferrer" href="https://www.aliyun.com">
+        TM5
+      </a>
+    ),
+    key: '1',
+  },
+  { label: (
+      <a target="_blank" rel="noopener noreferrer" href="https://www.aliyun.com">
+        TM21
+      </a>
+    ),
+    key: '2',
+  },
+  { label: (
+      <a target="_blank" rel="noopener noreferrer" href="https://www.aliyun.com">
+        TM31
+      </a>
+    ),
+    key: '3',
+  },
+  {
+    type: 'divider',
+  },
+  {
+    label: 'Alguna otra opcion',
+    key: '3',
+    disabled: true,
+  },
+];
 
 function App() {
   const [count, setCount] = useState(0)
@@ -41,26 +85,37 @@ function App() {
 
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="container">
+      <div className="row">
+        <h1> Bienvenido a Thermomix!</h1>
+        <h3>¿Que deseas buscar?</h3>  
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
+      
+      <div className="row">
+        <div>
+        <Dropdown
+          menu={{
+            items,
+          }}
+        >
+          <a onClick={(e) => e.preventDefault()}>
+            <Space>
+              Elige la Thermomix
+              <DownOutlined />
+            </Space>
+          </a>
+        </Dropdown>
+        <p></p>
+        </div>
+        <Space.Compact style={{ width: '100%' }}>
+          <Input placeholder="Ingresa la receta que deseas buscar" />
+          <Button type="primary">Enviar</Button>
+        </Space.Compact>
+
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <div className="row">
+      </div>
+    </div>
     </>
   )
 }
