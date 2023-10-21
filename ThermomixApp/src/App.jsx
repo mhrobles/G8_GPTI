@@ -59,6 +59,7 @@ function App() {
   
   async function get_res() {
 
+    // Esto es lo que se le manda a ChatGPT
     const request = `'${food}' es un plato de comida o no?`
 
     const res = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -78,13 +79,20 @@ function App() {
       })
     })
     const data = await res.json()
-    setVerification(data)
+
+    // Reviso si es un plato de comida o no
+    if (data.choices[0].message.content === 'Sí'){
+      // Si es un plato de comida, se ingresa la respuesta a verificación para activar el useEffect
+      setVerification(data.choices[0].message.content)
+    } else {
+      console.log('No es un plato de comida')
+    }
   }
 
   async function get_food() {
 
+    // Esto es lo que se le manda a ChatGPT
     const request = `Dame los ingredientes para hacer '${food}' en una Thermomix de modelo 'TM6' y tambien los pasos para su preparación, limitate a una preparación simple, no uses ingredientes innecesarios`
-    console.log(request)
 
     const res = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -95,29 +103,30 @@ function App() {
       body: JSON.stringify({
         model: 'gpt-3.5-turbo',
         messages: [{role: "user", content: request}],
-        // max_tokens: 150,
+        // max_tokens: 150, // No limito la respuesta de las instrucciones de preparación porque podría cortarse abruptamente
         temperature: 0.2
       })
     })
     const data = await res.json()
-    setResponse(data)
+    setResponse(data.choices[0].message.content)
   }
 
   // Si cambia el valor de Verification, se ejecuta un console.log y se llama a get_food()
   useEffect(() => {
     if (verification) {
-    console.log('Es un plato de comida?')
-    console.log(verification.choices[0].message.content)
-    get_food()
-  }}, [verification])
+      get_food()
+    }
+  }, [verification])
 
   // Si cambia el valor de response, se ejecuta un console.log
   useEffect(() => {
     if (response && count < 1) {
-    console.log('Se obtiene la respuesta')
-    console.log(response.choices[0].message.content)
-    setCount(count + 1)
-    }}, [response])
+      // Esto es la respuesta de la API con los ingredientes y pasos a seguir
+      console.log(response)
+      // Contador para asegurarse de que no se realice la request mas de una vez
+      setCount(count + 1)
+    }
+  }, [response])
 
   return (
     <>
