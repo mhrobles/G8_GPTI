@@ -50,16 +50,18 @@ const items = [
 function App() {
   const [verification, setVerification] = useState('')
   const [response , setResponse] = useState('')
+  // crear una variable contador
+  const [count, setCount] = useState(0)
   // const [model, setModel] = useState('') // Al elegir un modelo de Thermomix, se usa setModel para cambiar el valor de model
   const [food, setFood] = useState('') // Al ingresar un plato de comida, se usa setFood para cambiar el valor de food
 
-  const API_KEY = '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'
+  const API_KEY = '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'
   
   async function get_res() {
 
-    const request = `'${food}' es un plato de comida? si o no?`
+    const request = `'${food}' es un plato de comida o no?`
 
-    const res = await fetch('https://api.openai.com/v1/completions', {
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -68,11 +70,9 @@ function App() {
       body: JSON.stringify({
         model: 'gpt-3.5-turbo',
         // Aqui va lo que se le manda a chatGPT, con el rol de usuario y el contenido del mensaje
-        messages:[
-          {"role": "user", "content": {request}}
-        ],
+        messages: [{role: "user", content: request}],
         // max_tokens se refiere al largo de la respuesta proveniente de ChatGPT
-        max_tokens: 1,
+        max_tokens: 2,
         // temperature se refiere a que tan consisa y exacta se quiere tener la respuesta
         temperature: 0.2
       })
@@ -83,10 +83,10 @@ function App() {
 
   async function get_food() {
 
-    const request = `Dame los ingredientes para hacer '${food}' en una Thermomix de modelo 'TM6'. Y luego, dame los pasos enumerados para su preparación.`
+    const request = `Dame los ingredientes para hacer '${food}' en una Thermomix de modelo 'TM6' y tambien los pasos para su preparación, limitate a una preparación simple, no uses ingredientes innecesarios`
     console.log(request)
 
-    const res = await fetch('https://api.openai.com/v1/completions', {
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -94,10 +94,8 @@ function App() {
       },
       body: JSON.stringify({
         model: 'gpt-3.5-turbo',
-        messages:[
-          {"role": "user", "content": {request}}
-        ],
-        // max_tokens: 1,
+        messages: [{role: "user", content: request}],
+        // max_tokens: 150,
         temperature: 0.2
       })
     })
@@ -108,16 +106,17 @@ function App() {
   // Si cambia el valor de Verification, se ejecuta un console.log y se llama a get_food()
   useEffect(() => {
     if (verification) {
-    console.log('Se acepta el plato de comida')
-    console.log(verification)
+    console.log('Es un plato de comida?')
+    console.log(verification.choices[0].message.content)
     get_food()
   }}, [verification])
 
   // Si cambia el valor de response, se ejecuta un console.log
   useEffect(() => {
-    if (response) {
+    if (response && count < 1) {
     console.log('Se obtiene la respuesta')
-    console.log(response)
+    console.log(response.choices[0].message.content)
+    setCount(count + 1)
     }}, [response])
 
   return (
