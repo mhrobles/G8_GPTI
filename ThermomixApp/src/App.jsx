@@ -42,7 +42,7 @@ const items = [
   },
   {
     label: 'Alguna otra opcion',
-    key: '3',
+    key: '4',
     disabled: true,
   },
 ];
@@ -54,6 +54,7 @@ function App() {
   const [count, setCount] = useState(0)
   // const [model, setModel] = useState('') // Al elegir un modelo de Thermomix, se usa setModel para cambiar el valor de model
   const [food, setFood] = useState('') // Al ingresar un plato de comida, se usa setFood para cambiar el valor de food
+  const [formattedResponse, setFormattedResponse] = useState({ ingredients: [], steps: [] });
 
   const API_KEY = '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'
   
@@ -77,13 +78,13 @@ function App() {
         // temperature se refiere a que tan consisa y exacta se quiere tener la respuesta
         temperature: 0.2
       })
-    })
-    const data = await res.json()
+    });
+    const data = await res.json();
 
     // Reviso si es un plato de comida o no
     if (data.choices[0].message.content === 'Sí'){
       // Si es un plato de comida, se ingresa la respuesta a verificación para activar el useEffect
-      setVerification(data.choices[0].message.content)
+      setVerification(data.choices[0].message.content);
     } else {
       console.log('No es un plato de comida')
     }
@@ -118,49 +119,91 @@ function App() {
     }
   }, [verification])
 
-  // Si cambia el valor de response, se ejecuta un console.log
   useEffect(() => {
     if (response && count < 1) {
-      // Esto es la respuesta de la API con los ingredientes y pasos a seguir
-      console.log(response)
-      // Contador para asegurarse de que no se realice la request mas de una vez
-      setCount(count + 1)
+      console.log(response);
+      const formattedData = formatResponseText(response);
+      setFormattedResponse(formattedData);
+      console.log(formattedData.ingredients);
+      console.log("Aqui vienen los pasos");
+      console.log(formattedData.steps);
+      setCount(count + 1);
     }
-  }, [response])
+  }, [response]);
+
+  function formatResponseText(text) {
+    const parts = text.split('\n'); // Divide el texto en líneas
+    const ingredients = [];
+    const steps = [];
+
+    let isIngredientsSection = false;
+    let isStepsSection = false;
+
+    parts.forEach((part) => {
+      if (part.startsWith('Ingredientes')) {
+        isIngredientsSection = true;
+        isStepsSection = false;
+      } else if (part.startsWith('Pasos')) {
+        isIngredientsSection = false;
+        isStepsSection = true;
+      } else if (isIngredientsSection) {
+        ingredients.push(part);
+      } else if (isStepsSection) {
+        steps.push(part);
+      }
+    });
+
+    return { ingredients, steps };
+  }
 
   return (
     <>
-    <div className="container">
-      <div className="row">
-        <h1> Bienvenido a Thermomix!</h1>
-        <h3>¿Que deseas buscar?</h3>  
-      </div>
-      
-      <div className="row">
-        <div>
-        <Dropdown
-          menu={{
-            items,
-          }}
-        >
-          <a onClick={(e) => e.preventDefault()}>
-            <Space>
-              Elige la Thermomix
-              <DownOutlined />
-            </Space>
-          </a>
-        </Dropdown>
-        <p></p>
+      <div className="container">
+        <div className="row-25">
+          <h1> Bienvenido a Thermomix!</h1>
+          <h3>¿Qué deseas buscar?</h3>
         </div>
-        <Space.Compact style={{ width: '100%' }}>
-          <Input placeholder="Ingresa la receta que deseas buscar" value={food} onChange={(e) => setFood(e.target.value)} />
-          <Button type="primary" onClick={get_res} >Enviar</Button>
-        </Space.Compact>
+        <div className="row-75">
+          <div>
+            <Dropdown
+              menu={{
+                items,
+              }}
+            >
+              <a onClick={(e) => e.preventDefault()}>
+                <Space>
+                  Elige la Thermomix
+                  <DownOutlined />
+                </Space>
+              </a>
+            </Dropdown>
+            <p></p>
+          </div>
+          <Space.Compact style={{ width: '100%' }}>
+            <Input placeholder="Ingresa la receta que deseas buscar" value={food} onChange={(e) => setFood(e.target.value)} />
+            <Button type="primary" onClick={get_res} >Enviar</Button>
+          </Space.Compact>
 
+          {response ? (
+            <div>
+              <h3>Ingredientes en Thermomix:</h3>
+              <ul>
+                {formattedResponse.ingredients.map((ingredient, index) => (
+                  <p key={index}>{ingredient}</p>
+                ))}
+              </ul>
+
+              <h3>Pasos para la preparación en Thermomix:</h3>
+              <ol>
+                {formattedResponse.steps.map((step, index) => (
+                  <p key={index}>{step}</p>
+                ))}
+              </ol>
+            </div>
+          ) : null}
+          
+        </div>
       </div>
-      <div className="row">
-      </div>
-    </div>
     </>
   )
 }

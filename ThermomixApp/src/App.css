@@ -41,8 +41,16 @@
   color: #888;
 }
 
+
+.row-25 {
+  height: 25%;
+}
+
+.row-75 {
+  height: 75%;
+}
+
 .container {
   display: grid;
-  grid-template-rows: repeat(3, 1fr); /* Crea tres filas de igual tamaño */
-  gap: 10px; /* Espacio entre las filas (puedes ajustarlo según tus necesidades) */
+  gap: 10px;
 }
