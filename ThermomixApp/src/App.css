@@ -46,11 +46,18 @@
   height: 25%;
 }
 
-.row-75 {
+.row-75{
   height: 75%;
 }
 
-.container {
-  display: grid;
-  gap: 10px;
+.row-75-home {
+  height: 75%;
+  width: 100%; /* Opcional: ajusta el ancho según sea necesario */
+  display: flex;
+}
+
+.column-50 {
+  width: 50%;
+  flex: 0 0 50%; /* Esto asegura que cada columna tenga el 50% del ancho */
+  box-sizing: border-box; /* Esto asegura que el padding y el borde no afecten al ancho total */
 }
