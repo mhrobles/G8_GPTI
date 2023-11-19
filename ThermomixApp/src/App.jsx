@@ -2,9 +2,9 @@ import "./App.css";
 import React from "react";
 import { BrowserRouter as Router, Routes,Route} from "react-router-dom";
 import { useState, useEffect } from "react";
-import SearchRecipe from "./routes/SearchRecipe.jsx";
-import SearchNewCountry from "./routes/SearchNewCountry.jsx";
-import Home from "./routes/Home.jsx";
+import SearchRecipe from "./Pages/SearchRecipe.jsx";
+import SearchNewCountry from "./Pages/SearchNewCountry.jsx";
+import Home from "./Pages/Home.jsx";
 
 function App() {
   const [data, setData] = useState(null);

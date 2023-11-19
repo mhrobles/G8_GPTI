@@ -4,47 +4,6 @@ import { Dropdown, Space, Button, Input } from 'antd';
 import '../App.css'
 import {useNavigate} from 'react-router-dom';
 
-const items = [
-  {
-    label: (
-      <a target="_blank" rel="noopener noreferrer" >
-        TM6
-      </a>
-    ),
-    key: '0',
-  },
-  {
-    label: (
-      <a target="_blank" rel="noopener noreferrer">
-        TM5
-      </a>
-    ),
-    key: '1',
-  },
-  { label: (
-      <a target="_blank" rel="noopener noreferrer">
-        TM21
-      </a>
-    ),
-    key: '2',
-  },
-  { label: (
-      <a target="_blank" rel="noopener noreferrer">
-        TM31
-      </a>
-    ),
-    key: '3',
-  },
-  {
-    type: 'divider',
-  },
-  {
-    label: 'Alguna otra opcion',
-    key: '4',
-    disabled: true,
-  },
-];
-
 function SearchRecipe() {
   const [verification, setVerification] = useState('')
   const [response , setResponse] = useState('')
@@ -54,11 +13,15 @@ function SearchRecipe() {
   // const [model, setModel] = useState('') // Al elegir un modelo de Thermomix, se usa setModel para cambiar el valor de model
   const [food, setFood] = useState('') // Al ingresar un plato de comida, se usa setFood para cambiar el valor de food
   const [formattedResponse, setFormattedResponse] = useState({ ingredients: [], steps: [] });
+  const [thermomix, setThermomix] = useState('');
+  const [thermomixOptions] = useState(['TM6', 'TM5', 'TM21', 'TM31']);
+  const [isVerifing, setIsVerifing] = useState(false);
   const history = useNavigate();
 
   const apiKey = import.meta.env.VITE_REACT_APP_API_KEY;
   
   async function get_res() {
+    setIsVerifing(true)
     // Esto es lo que se le manda a ChatGPT
     const request = `'${food}' es un plato de comida o no?`
     
@@ -90,6 +53,8 @@ function SearchRecipe() {
       }
     } catch (error) {
       console.log('Error al enviar la solicitud', error);
+    } finally {
+      setIsVerifing(false)
     }
   }
 
@@ -97,7 +62,7 @@ function SearchRecipe() {
     setLoading(true)
 
     // Esto es lo que se le manda a ChatGPT
-    const request = `Ingredientes y pasos para hacer '${food}' en Thermomix TM6.`
+    const request = `Ingredientes y pasos para hacer '${food}' en Thermomix ${thermomix}.`
 
     try {
       const res = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -171,6 +136,10 @@ function SearchRecipe() {
     history('/');
   };
 
+  const HandleThermomixChoice = (value) => {
+    setThermomix(value);
+  }
+
   return (
     <>
       <div className="container">
@@ -180,25 +149,26 @@ function SearchRecipe() {
         </div>
         <div className="row-75">
           <div>
-            <Dropdown
-              menu={{
-                items,
-              }}
-            >
-              <a onClick={(e) => e.preventDefault()}>
-                <Space>
-                  Elige la Thermomix
-                  <DownOutlined />
-                </Space>
-              </a>
-            </Dropdown>
+            <p>Selecciona el modelo de Thermomix que tienes:</p>
+            <Space>
+              {thermomixOptions.map((option, index) => (
+                <Button 
+                  key={index}
+                  type={thermomix === option ? 'primary' : 'default'}
+                  onClick={() => HandleThermomixChoice(option)}
+                >
+                  {option}
+                </Button>
+              ))}
+            </Space>
             <p></p>
           </div>
           <Space.Compact style={{ width: '100%' }}>
             <Input placeholder="Ingresa la receta que deseas buscar" value={food} onChange={(e) => setFood(e.target.value)} />
             <Button type="primary" onClick={get_res} >Enviar</Button>
           </Space.Compact>
-
+          
+          {isVerifing && <p>Verificando si es un plato de comida...</p>}
           {loading && <p>Cargando respuesta...</p>}
 
           {response ? (
