@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes,Route} from "react-router-dom";
 import { useState, useEffect } from "react";
 import SearchRecipe from "./SearchRecipe.jsx";
 import SearchCountry from "./SearchCountry.jsx";
+import SearchNewCountry from "./SearchNewCountry.jsx";
 import Home from "./Home.jsx";
 
 function App() {
@@ -18,7 +19,7 @@ function App() {
       <div className="App">
         <Routes>
           <Route path="/recipe" element={<SearchRecipe/>} />
-          <Route path="/country" element={<SearchCountry/>} />
+          <Route path="/country" element={<SearchNewCountry/>} />
           <Route path="/" element={<Home />} />
         </Routes>
       </div>

@@ -23,7 +23,7 @@ function Home() {
     <>
       <div className="container">
         <div className="row-25">
-          <h1>Seleccionaste buscar por pais</h1>
+          <h1>Bienvenidx a Thermomix!</h1>
           <h3>¿Qué deseas acceder?</h3>
         </div>
         <div className="row-75-home">

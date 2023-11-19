@@ -92,7 +92,7 @@ function SearchRecipe() {
   async function get_food() {
 
     // Esto es lo que se le manda a ChatGPT
-    const request = `Dame los ingredientes para hacer '${food}' en una Thermomix de modelo 'TM6' y tambien los pasos para su preparación, limitate a una preparación simple, no uses ingredientes innecesarios`
+    const request = `Ingredientes y pasos para hacer '${plato}' en Thermomix TM6.`
 
     const res = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',

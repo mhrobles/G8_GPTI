@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'
 import { DownOutlined } from '@ant-design/icons';
-import { Dropdown, Space, Button, Menu } from 'antd';
-import { useNavigate } from 'react-router-dom';
-import.meta.env.VITE_API_KEY
+import { Dropdown, Space, Button, Input, Menu } from 'antd';
+import './App.css'
+import {useNavigate} from 'react-router-dom';
 
 const countries = [
     { label: 'Argentina', key: '0' },
@@ -16,91 +16,30 @@ const countries = [
     // Puedes añadir más países si lo deseas
   ];
 
-const platos = [
+  const platos = [
     { label: 'Asado', key: '0' },
     { label: 'Cazuela', key: '2' },
     { label: "Fideos con salsa", key: '3'}
 ]
 
-const platosfav = {
-    "Argentina": [
-      "Asado",
-      "Empanadas",
-      "Mate"
-    ],
-    "Brasil": [
-      "Feijoada",
-      "Pão de queijo",
-      "Brigadeiro"
-    ],
-    "Canada": [
-      "Poutine",
-      "BeaverTails",
-      "Maple syrup"
-    ],
-    "Chile": [
-      "Empanadas de pino",
-      "Pastel de choclo",
-      "Asado"
-    ],
-    "Dinamarca": [
-      "Smørrebrød",
-      "Frikadeller",
-      "Rødgrød med fløde"
-    ],
-    "Egipto": [
-      "Koshari",
-      "Ful medames",
-      "Mahshi"
-    ],
-    "Francia": [
-      "Croissant",
-      "Ratatouille",
-      "Foie gras"
-    ],
-    "Alemania": [
-      "Bratwurst",
-      "Sauerkraut",
-      "Schnitzel"
-    ]
-  }
-
-function SearchCountry() {
-  const [country, setCountry] = useState('');
-  const [plato, setPlato] = useState('');
-  const [tipicos, setTipicos] = useState('');
-  const [response, setResponse] = useState('');
+function SearchNewCountry() {
+  const [verification, setVerification] = useState('')
+  const [response , setResponse] = useState('')
+  // crear una variable contador
+  const [count, setCount] = useState(0)
+  // const [model, setModel] = useState('') // Al elegir un modelo de Thermomix, se usa setModel para cambiar el valor de model
+  const [food, setFood] = useState('') // Al ingresar un plato de comida, se usa setFood para cambiar el valor de food
   const [formattedResponse, setFormattedResponse] = useState({ ingredients: [], steps: [] });
+  const [country, setCountry] = useState('');
   const history = useNavigate();
 
   const API_KEY = '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'
-
-  const GoBack = () => {
-    history('/');
-  };
-
-  const HandleCountry = (value) => {
-    setCountry(value);
-    console.log(value)
-  };
-
-  const HandlePlato = (value) => {
-    setPlato(value);
-  };
-
-  // useEffect que se activa cuando cambia el valor de plato
-  useEffect(() => {
-    if (plato !== '') {
-      console.log(plato);
-      get_food();
-    }
-  }, [plato]);
-
+  
   async function get_food() {
-    console.log("buscando receta e ingredientes")
+    console.log("pidiendo a la api");
 
     // Esto es lo que se le manda a ChatGPT
-    const request = `Dame los ingredientes para hacer '${plato}' en una Thermomix de modelo 'TM6' y tambien los pasos para su preparación, sé lo mas conciso posible`
+    const request = `Ingredientes y pasos para hacer '${food}' en Thermomix TM6.`
 
     const res = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -117,8 +56,15 @@ function SearchCountry() {
     })
     const data = await res.json()
     setResponse(data.choices[0].message.content)
-    console.log(`Lo que se guarda en instructions es: ${data.choices[0].message.content}`)
   }
+  
+
+  // Si cambia el valor de Verification, se ejecuta un console.log y se llama a get_food()
+  useEffect(() => {
+    if (verification) {
+      get_food()
+    }
+  }, [verification])
 
   useEffect(() => {
     if (response && count < 1) {
@@ -157,6 +103,19 @@ function SearchCountry() {
     return { ingredients, steps };
   }
 
+  const GoBack = () => {
+    history('/');
+  };
+
+  const HandleCountry = (value) => {
+    setCountry(value);
+    console.log(value)
+  };
+
+  const HandlePlato = (value) => {
+    setFood(value);
+  };
+
   return (
     <>
       <div className="container">
@@ -166,7 +125,7 @@ function SearchCountry() {
         </div>
         <div className="row-75">
           <div>
-            <Dropdown
+          <Dropdown
               overlay={
                 <Menu>
                   {countries.map((item) => (
@@ -186,6 +145,8 @@ function SearchCountry() {
             </Dropdown>
             <p></p>
           </div>
+
+          
           {country && (
             <div>
               <Dropdown
@@ -201,14 +162,16 @@ function SearchCountry() {
               >
                 <a className="ant-dropdown-link" onClick={(e) => e.preventDefault()}>
                   <Space>
-                    {plato ? plato : 'Elige un plato'}
+                    {food ? food : 'Elige un plato'}
                     <DownOutlined />
                   </Space>
                 </a>
               </Dropdown>
               <p></p>
+              <Button type="primary" onClick={get_food} >Enviar</Button>
             </div>
           )}
+
           {response ? (
             <div>
               <h3>Ingredientes en Thermomix:</h3>
@@ -226,13 +189,12 @@ function SearchCountry() {
               </ol>
             </div>
           ) : null}
+          
         </div>
-        <Button type="primary" onClick={GoBack}>
-          Volver a la página principal
-        </Button>
+        <Button type="primary" onClick={GoBack} >Volver a la pagina principal</Button>
       </div>
     </>
-  );
+  )
 }
 
-export default SearchCountry;
+export default SearchNewCountry;
