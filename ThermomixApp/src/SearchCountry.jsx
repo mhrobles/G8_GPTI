@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DownOutlined } from '@ant-design/icons';
 import { Dropdown, Space, Button, Menu } from 'antd';
 import { useNavigate } from 'react-router-dom';
@@ -24,6 +24,8 @@ const platos = [
 function SearchCountry() {
   const [country, setCountry] = useState('');
   const [plato, setPlato] = useState('');
+  const [tipicos, setTipicos] = useState('');
+  const [instructions, setInstructions] = useState('');
   const history = useNavigate();
 
   const GoBack = () => {
@@ -35,9 +37,71 @@ function SearchCountry() {
     console.log(value)
   };
 
+  // useEffect que se activa cuando cambia el valor de country
+  useEffect(() => {
+    if (country !== '') {
+      console.log(country);
+      searchPlatos();
+    }
+  }, [country]);
+
+  async function searchPlatos() {
+
+    // Esto es lo que se le manda a ChatGPT
+    const request = `Dame 3 platos tipicos del país '${country}' en formato JSON`
+
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: 'gpt-3.5-turbo',
+        messages: [{role: "user", content: request}],
+        // max_tokens: 150, // No limito la respuesta de las instrucciones de preparación porque podría cortarse abruptamente
+        temperature: 0.2
+      })
+    })
+    const data = await res.json()
+    setTipicos(data.choices[0].message.content)
+    console.log(f`Lo que se guarda en tipicos es: ${data.choices[0].message.content}`)
+  }
+
   const HandlePlato = (value) => {
     setPlato(value);
   };
+
+  // useEffect que se activa cuando cambia el valor de plato
+  useEffect(() => {
+    if (plato !== '') {
+      console.log(plato);
+      get_food();
+    }
+  }, [plato]);
+
+  async function get_food() {
+
+    // Esto es lo que se le manda a ChatGPT
+    const request = `Dame los ingredientes para hacer '${plato}' en una Thermomix de modelo 'TM6' y tambien los pasos para su preparación, sé lo mas conciso posible`
+
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: 'gpt-3.5-turbo',
+        messages: [{role: "user", content: request}],
+        // max_tokens: 150, // No limito la respuesta de las instrucciones de preparación porque podría cortarse abruptamente
+        temperature: 0.2
+      })
+    })
+    const data = await res.json()
+    setInstructions(data.choices[0].message.content)
+    console.log(f`Lo que se guarda en instructions es: ${data.choices[0].message.content}`)
+  }
 
   return (
     <>

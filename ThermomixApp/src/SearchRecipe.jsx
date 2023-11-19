@@ -1,9 +1,6 @@
 import { useState, useEffect } from 'react'
 import { DownOutlined } from '@ant-design/icons';
-import { Dropdown, Space, Button, Input, Select, Layout } from 'antd';
-const { Header, Footer, Sider, Content } = Layout;
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { Dropdown, Space, Button, Input } from 'antd';
 import './App.css'
 import {useNavigate} from 'react-router-dom';
 
