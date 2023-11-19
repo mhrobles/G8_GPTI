@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { DownOutlined } from '@ant-design/icons';
 import { Dropdown, Space, Button, Input } from 'antd';
-import './App.css'
+import '../App.css'
 import {useNavigate} from 'react-router-dom';
 
 const items = [
@@ -50,65 +50,76 @@ function SearchRecipe() {
   const [response , setResponse] = useState('')
   // crear una variable contador
   const [count, setCount] = useState(0)
+  const [loading, setLoading] = useState(false)
   // const [model, setModel] = useState('') // Al elegir un modelo de Thermomix, se usa setModel para cambiar el valor de model
   const [food, setFood] = useState('') // Al ingresar un plato de comida, se usa setFood para cambiar el valor de food
   const [formattedResponse, setFormattedResponse] = useState({ ingredients: [], steps: [] });
   const history = useNavigate();
 
-  const API_KEY = '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'
+  const apiKey = import.meta.env.VITE_REACT_APP_API_KEY;
   
   async function get_res() {
-
     // Esto es lo que se le manda a ChatGPT
     const request = `'${food}' es un plato de comida o no?`
+    
+    try {
+      const res = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: 'gpt-3.5-turbo',
+          // Aqui va lo que se le manda a chatGPT, con el rol de usuario y el contenido del mensaje
+          messages: [{role: "user", content: request}],
+          // max_tokens se refiere al largo de la respuesta proveniente de ChatGPT
+          max_tokens: 2,
+          // temperature se refiere a que tan consisa y exacta se quiere tener la respuesta
+          temperature: 0.2
+        })
+      });
+      const data = await res.json();
 
-    const res = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
-        // Aqui va lo que se le manda a chatGPT, con el rol de usuario y el contenido del mensaje
-        messages: [{role: "user", content: request}],
-        // max_tokens se refiere al largo de la respuesta proveniente de ChatGPT
-        max_tokens: 2,
-        // temperature se refiere a que tan consisa y exacta se quiere tener la respuesta
-        temperature: 0.2
-      })
-    });
-    const data = await res.json();
-
-    // Reviso si es un plato de comida o no
-    if (data.choices[0].message.content === 'Sí'){
-      // Si es un plato de comida, se ingresa la respuesta a verificación para activar el useEffect
-      setVerification(data.choices[0].message.content);
-    } else {
-      console.log('No es un plato de comida')
+      // Reviso si es un plato de comida o no
+      if (data.choices[0].message.content === 'Sí'){
+        // Si es un plato de comida, se ingresa la respuesta a verificación para activar el useEffect
+        setVerification(data.choices[0].message.content);
+      } else {
+        console.log('No es un plato de comida')
+      }
+    } catch (error) {
+      console.log('Error al enviar la solicitud', error);
     }
   }
 
   async function get_food() {
+    setLoading(true)
 
     // Esto es lo que se le manda a ChatGPT
-    const request = `Ingredientes y pasos para hacer '${plato}' en Thermomix TM6.`
+    const request = `Ingredientes y pasos para hacer '${food}' en Thermomix TM6.`
 
-    const res = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
-        messages: [{role: "user", content: request}],
-        // max_tokens: 150, // No limito la respuesta de las instrucciones de preparación porque podría cortarse abruptamente
-        temperature: 0.2
+    try {
+      const res = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: 'gpt-3.5-turbo',
+          messages: [{role: "user", content: request}],
+          // max_tokens: 150, // No limito la respuesta de las instrucciones de preparación porque podría cortarse abruptamente
+          temperature: 0.2
+        })
       })
-    })
-    const data = await res.json()
-    setResponse(data.choices[0].message.content)
+      const data = await res.json()
+      setResponse(data.choices[0].message.content)
+    } catch (error) {
+      console.log('Error al enviar la solicitud', error);
+    } finally {
+      setLoading(false)
+    }
   }
   
 
@@ -187,6 +198,8 @@ function SearchRecipe() {
             <Input placeholder="Ingresa la receta que deseas buscar" value={food} onChange={(e) => setFood(e.target.value)} />
             <Button type="primary" onClick={get_res} >Enviar</Button>
           </Space.Compact>
+
+          {loading && <p>Cargando respuesta...</p>}
 
           {response ? (
             <div>

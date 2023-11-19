@@ -3,9 +3,7 @@ import { DownOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { Dropdown, Space, Button, Input, Select, Layout } from 'antd';
 const { Header, Footer, Sider, Content } = Layout;
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import '../App.css'
 
 function Home() {
   const history = useNavigate();
